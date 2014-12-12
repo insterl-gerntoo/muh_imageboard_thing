@@ -1,0 +1,103 @@
+Note: I use the word "property" in here; I don't know what the proper name for it is, but it will usually be the key part of key:value pairs (JS is wierd, so it really isn't technically a key, more like an object)
+
+Nodes:
+    -Anyone connected to the network, each node has an ID
+
+Messages:
+    -Carry all data on the network (except possibly streams if they're ever implemented)
+    -Have some standard properties:
+        -senderID: the ID of the sender
+        -senderNodeType: the type of node, will be "rtc_client" for most users
+        -proxiedFor: will be an empty string unless the message was sent on behalf of another node; this will mainly be used for connecting to new nodes found through DHT.
+        -messageType: A string specifying what type of message this is, can be things like "sdp_offer", "create_post", etc.
+        -data: The payload data
+
+Servers:
+    Servers can be a part of the network, they have the following properties:
+        -They should identify themselves as "server" or "private_server" in the senderNodeType property of the messages
+        -They connect to nodes via websockets rather than webrtc.  This should simplify server-side implementation.
+        -They can act like trackers do in the bittorrent network, helping to establish a pool of connections when a node is first initializing.
+        -They will likely be hosting most posts on the network, since they should have little to no downtime
+        -They can be private, in which case they will only accept connections from nodes that have been invited
+            -If they are private, they will also not accept any sort of message if the specified ID
+                doesn't match that of the node sending the message.
+                -Nodes caught proxying in order to expose a private server should be banned.
+
+Reply Chains:
+        -There will be reply chains, containing the following data:
+            -A unique ID for the reply chain
+            -A list of posts, each with the following data:
+                -A UNIX timestamp of when the post was created
+                -(optional) The ID of the user who created the post, otherwise an empty string
+                -A list of ID's of users hosting that post's content
+                -A list of posts this post is replying to, in the following format:
+                    -For a post in the same reply chain, for example post 82, ">>82"
+                    -For a post in a different reply chain, for example post 82 of chain AMhvE8h8oGr3Zg4he4PfzPXZ, ">>>/AMhvE8h8oGr3Zg4he4PfzPXZ/82"
+
+DHT:
+    We'll use a Distributed Hash Table to find other nodes, I haven't fully thought it out yet,
+        but it should work mostly as it does in the bittorrent spec.
+
+Node Startup Procedure:
+    1. The node generates an ID
+    2: The node finds another node to connect to
+    If the other node is a server:
+        3. Establish a websocket connection using the server's URL
+    Else:
+        3: If the nodes have a secure channel through which to exchange connection info:
+            3.1: One node (Node A) creates an sdp offer
+            3.2: Node A then sends the offer to the other node (Node B)
+            3.3: Node B uses the offer to create an answer
+            3.4: Node B sends the answer to Node A
+            3.5: Node A uses the answer to establish a connection with node B
+           Else:
+            3.0: Both nodes will be using public-key encryption to exchange their connection info, so both should already have a public and private key generated
+            3.1: One node (Node A) posts his public key
+            3.2: Another node (Node B) creates an sdp offer
+            3.3: Node B uses Node A's public key to encrypt his offer
+            3.4: Node B posts both his public key, and the encrypted offer
+            3.5: Node A uses his private key to decrypt the offer
+            3.6: Node A uses the offer to create an answer
+            3.7: Node A encrypts the answer using Node B's public key
+            3.8: Node A posts his encrypted answer
+            3.9: Node B uses his private key to decrypt the answer
+            3.10: Node B uses the answer to establish a connection with Node A
+    4. Send a "ping" message to verify the connection and get the node's ID
+    5. The other node should send back a "pong" message, add the ID to the DHT node list
+    6. Then send a message of type "get_nodes" to the other node, with the data property set to an empty string
+    7. The other node should then reply with a "got_nodes" message with the following data:
+        -A list ID's of every node the other node has a connection to
+    8. The node should then try to connect to each of the nodes on that list with the following procedure:
+        8.1: Send a "proxy_message" message to the other node with the following data:
+            -The ID of the node our node is trying to connect to
+            -A message of type "sdp_offer" with the data being an sdp offer
+        8.2: The other node should eventually respond with one of the following messages:
+            -sdp_answer, in which case the answer should be used to establish a connection
+            -use_websocket, this indicates we're trying to connect to a server, the payload of this message should be
+                the server's URL, so we connect to that URL using websockets.
+            -sdp_reject, in which case the request was rejected, move on to the next ID in the list
+                -sdp_reject should have a string as its payload with the reason the offer was rejected
+            -sdp_no_response, in which case the node did not respond, move on to the next ID in the list
+        8.3: If the connection was successful, try to add the node to the DHT node list
+    9. Send a "get_chains" message to all nodes this node is connected to
+    10. Each should respond with a "got_chains" message, containing a list of all known chain ID's, for each chain:
+        10.1: Add the chain's ID to the chain list, if it isn't there already
+        10.2: Send a "get_chain" message to the node we got this chain list from, with the payload being the chain ID
+        10.3: The node should respond with a "got_chain" message containing the chain data
+        10.4: Optionally, get the content of the first few posts from the chain to show to the user, see "Getting Post Content"
+
+Getting Post Content:
+    1. Find a node from post's list of hosts to download the content from
+    2. Use the DHT to find and connect to the node
+    3. Send a "get_post_content" request to the node, with the following payload:
+        -chainID: A string containing the chain's ID
+        -postNum: The post number in that chain
+    4. The other node should then reply with "post_content_not_found" if it isn't hosting that post, or "got_post_content"
+        with a payload containing the data, in the following format:
+        -postText: The text of the post, will probably always be present
+        -postMedia: An array of all media content of the post, which could be images, videos, audio, etc.  All are stored as dataURL's
+    -At some point, it would be nice to have a bittorrent-like thing going to speed up downloads, but implementing that would be a huge pain in the ass
+
+Posting:
+    1. Determine who's going to host the post's content.
+    TODO: How do we do a post that is in reply to a post hosted on one server, but host our post on another?

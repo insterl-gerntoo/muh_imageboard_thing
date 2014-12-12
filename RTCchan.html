@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <link rel="shortcut icon" href="data:image/vnd.microsoft.icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAmElEQVQ4jc2TsQ3EIAxFH1EmYQpGSEl1Q1KlZISb4lZxKktOsBFSmnNlzPe3+TYJY6VlUf/7+aXVu8EseBYD2OyhdlzQFKPMtSOrBIorLUvYmiWLiEvLstsuVBwvoXbkPEgWDzCoaZM1wYv9j71+wv7csPMgRap7Ir4e42ZBUavWny7cbcOcal43t7+wMuNBRK9KZM+NBbgAMY1nkSZJd0EAAAAASUVORK5CYII=">
+        <link rel="stylesheet" type="text/css" href="RTCchan_style.css">
+        <title>16chan</title>
+        <script>
+            function setSDPModalMessage(message)
+            {
+                document.getElementById("message_span").innerHTML = message;
+            }
+            
+            function setSDPOfferTextboxText(sdp)
+            {
+                sdptextbox = document.getElementById("sdp_offer_textbox");
+                sdptextbox.value = sdp;
+                sdptextbox.select();
+            }
+            
+            function setSDPAnswerTextboxText(sdp)
+            {
+                sdptextbox = document.getElementById("sdp_answer_textbox");
+                sdptextbox.value = sdp;
+                sdptextbox.select();
+            }
+            
+            function getResponseTextboxText()
+            {
+                return document.getElementById("sdp_answer_textbox").value;
+            }
+            
+            function resetSDPModalBox()
+            {
+                setSDPModalMessage("Create an offer, or paste someone else's in the response box.");
+                setSDPOfferTextboxText("");
+                setSDPAnswerTextboxText("");
+            }
+            
+            function clearSDPModalBox()
+            {
+                document.getElementById("sdp_modal").style.display = "none";
+            }
+        </script>
+        <script src="message_handler.js"></script>
+        <script src="rtc_script.js"></script>
+    </head>
+    <body>
+        
+        <div id="sdp_modal" class="sdp_modal">
+            <div>
+                <div id="message_span">Create an offer, or paste someone else's in the response box.</div>
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>
+                                <input type="button" value="Create Offer" onclick="createOffer()">
+                            </th>
+                            <td>
+                                <input type="text" id="sdp_offer_textbox" autocomplete="off" readonly>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Response:</th>
+                            <td>
+                                <input type="text" id="sdp_answer_textbox" onpaste="getResponse()" autocomplete="off">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!--
+                <div>
+                    <input type="button" value="Create Offer"><input type="text" id="offer_textbox" autocomplete="off" readonly>
+                </div>
+                <div>
+                    Response:<input type="text" id="response_textbox" autocomplete="off">
+                </div>
+                -->
+            </div>
+        </div>
+        
+        <div class="top_bar">
+            <span class="section">
+                [<a>aoeuidhtns</a>]
+                [<a>i</a> / <a>dunno</a> / <a>lel</a>]
+                [<a>lorem</a>]
+                [<a>ipsum</a>]
+                [<a>dolor</a> / <a>sit</a> / <a>amet</a>]
+                [<a>consectetur</a> / <a>adipisicing</a> / <a>elit</a>]
+                [<a>sed</a> / <a>do</a> / <a>eiusmod</a> / <a>tempor</a> / <a>incididunt</a> / <a>ut</a> / <a>labore</a> / <a>et</a> / <a>dolore</a> / <a>magna</a> / <a>aliqua</a>]
+            </span>
+        </div>
+        <img class="board_img" alt="" src="16chan_board0.png">
+        <header>
+            <h1><a href="">&gt;&gt;0</a> - 16chan</h1>
+            <div class="subtitle">Shamelessly ripping off html/css from 8chan</div>
+        </header>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Name</th>
+                    <td>
+                        <input type="text" id="name_textbox" autocomplete="off" maxlength="35" size="25">
+                    </td>
+                </tr>
+                <tr>
+                    <th>Subject</th>
+                    <td>
+                        <input type="text" id="subject_textbox" autocomplete="off" maxlength="128" size="25">
+                    </td>
+                </tr>
+                <tr>
+                    <th>Comment</th>
+                    <td>
+                        <textarea id="post_textarea" cols="35" rows="5"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th>File</th>
+                    <td>
+                        <input type="file" id="file_upload">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <hr>
+    </body>
+</html>

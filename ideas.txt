@@ -3,7 +3,7 @@ Note: I use the word "property" in here; I don't know what the proper name for i
 Nodes:
     -Anyone connected to the network, each node has an ID
 
-ID: A 24-character-long string identifying the node, should be randomly generated
+ID: A 128-bit number identifying the node
 
 Messages:
     -Carry all data on the network (except possibly streams if they're ever implemented)

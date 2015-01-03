@@ -36,15 +36,15 @@ var errorHandler = function(err) {
 var peerconnections = {};
 
 //Our ID
-var ID = "";
+var ID = null;
 
-//Useful for generating ID's and channel names
+//Useful for generating channel names
 function getRandomString(n)
 {
     //Make 24 the default size if none is specified
     n = (n == undefined) ? 24 : n;
     var ret = "";
-    var pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var pool = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     for(var i = 0; i < n; ++i)
     {
         ret += pool.charAt(Math.floor(Math.random() * pool.length));
@@ -56,7 +56,7 @@ function getRandomString(n)
 //Generate the ID, not much else to do here
 function init()
 {
-    ID = getRandomString();
+    ID = getID();
 }
 
 //This function gets called whenever we paste an sdp string into tha answer field
@@ -75,7 +75,7 @@ function getResponse(event)
 function createOffer()
 {
     //Initialize our ID if we haven't already
-    if(ID == "") ID = getRandomString();
+    if(ID == null) ID = getID();
     
     //Start up a new peer connection
     var temp_pc = new PeerConnection(server, options);
@@ -94,7 +94,7 @@ function createOffer()
         //  candidates in your offer
         if(e.candidate == null) {
             //Lets make an offer, encapsulate it in some json
-            var offerstring = JSON.stringify({id:ID, messagetype:"offer", data:{channel:channelname, sdp:temp_pc.localDescription}});
+            var offerstring = JSON.stringify({id:getIdAsHexString(ID), messagetype:"offer", data:{channel:channelname, sdp:temp_pc.localDescription}});
             setSDPOfferTextboxText(offerstring);
         }
     };
@@ -115,6 +115,9 @@ function processResponse(response)
     //Parse the response
     var responsecontents = JSON.parse(response);
     var tempconnection;
+    
+    //Initialize our ID if we haven't already
+    if(ID == null) ID = getID();
     
     //If we're dealing with an answer
     if(responsecontents.messagetype == "answer")
@@ -150,8 +153,8 @@ function processResponse(response)
             // If you don't do this, chrome will be an asshole and just not put any
             //  candidates in your answer
             if(e.candidate == null) {
-                //Lets make an offer, encapsulate it in some json
-                var answerstring = JSON.stringify({id:ID, messagetype:"answer", data:{channel:responsecontents.data.channel, sdp:tempconnection.localDescription}});
+                //Lets make an answer, encapsulate it in some json
+                var answerstring = JSON.stringify({id:getIdAsHexString(ID), messagetype:"answer", data:{channel:responsecontents.data.channel, sdp:tempconnection.localDescription}});
                 setSDPOfferTextboxText(answerstring);
                 setSDPModalMessage("Answer available in response window, please send to other user");
             }
@@ -166,7 +169,7 @@ function bindEvents(connection)
     connection.onopen = function(e) {
         console.log("Yep.");
         //Let's send a message so the other guy knows we're alive
-        connection.send(JSON.stringify({id:ID, messagetype:"chatmessage", data:{username:"", text:"lel"}}));
+        connection.send(JSON.stringify({id:getIdAsHexString(ID), messagetype:"chatmessage", data:{username:"", text:"lel"}}));
         resetSDPModalBox();
         clearSDPModalBox();
     };

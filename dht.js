@@ -43,4 +43,6 @@ function getLeastDistanceIdealIndex(nodeid)
             lowest = buckets[i].ideal;
         }
     }
+    
+    return lowest_index;
 }

@@ -27,3 +27,20 @@ function initDHT(our_id)
 //I'm thinking it would be abs(ideal - nodeid)
 //Or better, ((ideal > nodeid) ? ideal - nodeid : nodeid - ideal)
 //^ better since we're dealing with unsigned integers
+
+function getLeastDistanceIdealIndex(nodeid)
+{
+    var node_array = parseIdFromHexString(nodeid);
+    
+    var lowest = getMaxId();
+    var lowest_index = 0;
+    
+    for(var i = 0; i < buckets.length; ++i)
+    {
+        if(id_compare(lowest, id_distance(buckets[i].ideal, node_array)) > 0)
+        {
+            lowest_index = i;
+            lowest = buckets[i].ideal;
+        }
+    }
+}

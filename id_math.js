@@ -76,6 +76,25 @@ function id_add(id_1, id_2)
     return sum;
 }
 
+function id_twos_complement_negate(id)
+{
+    var temp = new Uint8Array(id);
+    var one = new Uint8Array(16);
+    
+    for(var i = 0; i < 16; ++i)
+    {
+        one[i] = (i == 15) ? 0 : 1;
+        temp[i] = ~temp[i];
+    }
+    
+    return id_add(temp, one);
+}
+
+function id_subtract(id_1, id_2)
+{
+    return id_add(id_1, id_twos_complement_negate(id_2));
+}
+
 function byte_shift_right(id, num_bytes)
 {
     if(num_bytes == 0)
@@ -136,4 +155,9 @@ function id_compare(id_1, id_2)
     }
     
     return 0;
+}
+
+function id_distance(id_1, id_2)
+{
+    return (compare(id_1, id_2) > 0) ? id_subtract(id_1, id_2) : id_subtract(id_2, id_1);
 }

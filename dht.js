@@ -12,14 +12,14 @@ function initDHT(our_id)
    buckets.push({ideal:our_id, nodes:[]});
     
     //Space our ideal ID's apart by 1/32 of the ID space
-    var id_space_fraction = id_bit_shift_right(getMaxId(), 5);
+    var id_space_fraction = idBitShiftRight(getMaxId(), 5);
     for(var i = 0; i < 31; ++i)
     {
         temp_id = id_add(temp_id, id_space_fraction);
         buckets.push({ideal:temp_id, nodes:[]});
     }
     
-    buckets.sort(function(a, b) {return compare(a.ideal, b.ideal);});
+    buckets.sort(function(a, b) {return idCompare(a.ideal, b.ideal);});
 }
 
 //Here's what we need to do: create a "distance metric" to each ideal ID
@@ -37,7 +37,7 @@ function getLeastDistanceIdealIndex(nodeid)
     
     for(var i = 0; i < buckets.length; ++i)
     {
-        if(id_compare(lowest, id_distance(buckets[i].ideal, node_array)) > 0)
+        if(idCompare(lowest, idDistance(buckets[i].ideal, node_array)) > 0)
         {
             lowest_index = i;
             lowest = buckets[i].ideal;

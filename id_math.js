@@ -58,7 +58,7 @@ function carryThrough(index, id)
     return temp_id;
 }
 
-function id_add(id_1, id_2)
+function idAdd(id_1, id_2)
 {
     var sum = new Uint8Array(16);
     var temp1 = new Uint8Array(id_1);
@@ -76,7 +76,7 @@ function id_add(id_1, id_2)
     return sum;
 }
 
-function id_twos_complement_negate(id)
+function idTwosComplementNegate(id)
 {
     var temp = new Uint8Array(id);
     var one = new Uint8Array(16);
@@ -87,15 +87,15 @@ function id_twos_complement_negate(id)
         temp[i] = ~temp[i];
     }
     
-    return id_add(temp, one);
+    return idAdd(temp, one);
 }
 
-function id_subtract(id_1, id_2)
+function idSubtract(id_1, id_2)
 {
-    return id_add(id_1, id_twos_complement_negate(id_2));
+    return idAdd(id_1, idTwosComplementNegate(id_2));
 }
 
-function byte_shift_right(id, num_bytes)
+function byteShiftRight(id, num_bytes)
 {
     if(num_bytes == 0)
         return new Uint8Array(id);
@@ -119,9 +119,9 @@ function byte_shift_right(id, num_bytes)
     return temp;
 }
 
-function id_bit_shift_right(id, num_bits)
+function idBitShiftRight(id, num_bits)
 {
-    var temp = byte_shift_right(id, num_bits >> 3);
+    var temp = byteShiftRight(id, num_bits >> 3);
     var remaining_bits = num_bits % 8;
     if(remaining_bits == 0)
         return temp;
@@ -141,7 +141,7 @@ function id_bit_shift_right(id, num_bits)
     return temp;
 }
 
-function id_compare(id_1, id_2)
+function idCompare(id_1, id_2)
 {
     for(var i = 0; i < 16; ++i)
     {
@@ -157,7 +157,7 @@ function id_compare(id_1, id_2)
     return 0;
 }
 
-function id_distance(id_1, id_2)
+function idDistance(id_1, id_2)
 {
-    return (compare(id_1, id_2) > 0) ? id_subtract(id_1, id_2) : id_subtract(id_2, id_1);
+    return (idCompare(id_1, id_2) > 0) ? idSubtract(id_1, id_2) : idSubtract(id_2, id_1);
 }

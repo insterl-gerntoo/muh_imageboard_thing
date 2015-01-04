@@ -6,9 +6,7 @@ function getID()
     var ret = new Uint8Array(16);
     
     for(var i = 0; i < 16; ++i)
-    {
         ret[i] = Math.floor(Math.random() * 255);
-    }
     
     return ret;
 }
@@ -17,11 +15,19 @@ function getIdAsHexString(id)
 {
     var ret = "";
     for(var i = 0; i < 16; ++i)
-    {
         ret += ("0" + id[i].toString(16)).slice(-2);
-    }
     
     return ret;
+}
+
+function parseIdFromHexString(id_string)
+{
+    temp_id = new Uint8Array(16);
+    
+    for(var i = 0; i < 16; ++i)
+        temp_id[i] = parseInt(id_string.slice(2*i, 2*(i+1)), 16);
+    
+    return temp_id;
 }
 
 function getMaxId()
@@ -29,9 +35,7 @@ function getMaxId()
     var max_id = new Uint8Array(16);
     
     for(var i = 0; i < 16; ++i)
-    {
         max_id[i] = 0xff;
-    }
     
     return max_id;
 }
@@ -46,16 +50,15 @@ function carryThrough(index, id)
     var temp_id = new Uint8Array(id);
     
     while((index >= 0) && (id[index] == 0xff))
-    {
         temp_id[index--] = 0;
-    }
+    
     if(index >= 0)
         temp_id[index]++;
         
     return temp_id;
 }
 
-function add(id_1, id_2)
+function id_add(id_1, id_2)
 {
     var sum = new Uint8Array(16);
     var temp1 = new Uint8Array(id_1);
@@ -97,7 +100,7 @@ function byte_shift_right(id, num_bytes)
     return temp;
 }
 
-function bit_shift_right(id, num_bits)
+function id_bit_shift_right(id, num_bits)
 {
     var temp = byte_shift_right(id, num_bits >> 3);
     var remaining_bits = num_bits % 8;
@@ -117,4 +120,20 @@ function bit_shift_right(id, num_bits)
     }
     
     return temp;
+}
+
+function id_compare(id_1, id_2)
+{
+    for(var i = 0; i < 16; ++i)
+    {
+        if(id_1[i] > id_2[i])
+        {
+            return 1;
+        } else if(id_1[i] < id_2[i])
+        {
+            return -1;
+        }
+    }
+    
+    return 0;
 }

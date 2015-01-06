@@ -36,7 +36,7 @@ var errorHandler = function(err) {
 var peerconnections = {};
 
 //Our ID
-var ID = null;
+var ID = "";
 
 //Useful for generating channel names
 function getRandomString(n)
@@ -51,12 +51,6 @@ function getRandomString(n)
     }
     
     return ret;
-}
-
-//Generate the ID, not much else to do here
-function init()
-{
-    ID = getID();
 }
 
 //This function gets called whenever we paste an sdp string into tha answer field
@@ -75,7 +69,7 @@ function getResponse(event)
 function createOffer()
 {
     //Initialize our ID if we haven't already
-    if(ID == null) ID = getID();
+    if(ID == "") ID = getIdAsHexString(getID());
     
     //Start up a new peer connection
     var temp_pc = new PeerConnection(server, options);
@@ -94,7 +88,7 @@ function createOffer()
         //  candidates in your offer
         if(e.candidate == null) {
             //Lets make an offer, encapsulate it in some json
-            var offerstring = JSON.stringify({id:getIdAsHexString(ID), messagetype:"offer", data:{channel:channelname, sdp:temp_pc.localDescription}});
+            var offerstring = JSON.stringify({id:ID, messagetype:"offer", data:{channel:channelname, sdp:temp_pc.localDescription}});
             setSDPOfferTextboxText(offerstring);
         }
     };
@@ -117,7 +111,7 @@ function processResponse(response)
     var tempconnection;
     
     //Initialize our ID if we haven't already
-    if(ID == null) ID = getID();
+    if(ID == "") ID = getIdAsHexString(getID());
     
     //If we're dealing with an answer
     if(responsecontents.messagetype == "answer")
@@ -154,7 +148,7 @@ function processResponse(response)
             //  candidates in your answer
             if(e.candidate == null) {
                 //Lets make an answer, encapsulate it in some json
-                var answerstring = JSON.stringify({id:getIdAsHexString(ID), messagetype:"answer", data:{channel:responsecontents.data.channel, sdp:tempconnection.localDescription}});
+                var answerstring = JSON.stringify({id:ID, messagetype:"answer", data:{channel:responsecontents.data.channel, sdp:tempconnection.localDescription}});
                 setSDPOfferTextboxText(answerstring);
                 setSDPModalMessage("Answer available in response window, please send to other user");
             }
@@ -169,7 +163,7 @@ function bindEvents(connection)
     connection.onopen = function(e) {
         console.log("Yep.");
         //Let's send a message so the other guy knows we're alive
-        connection.send(JSON.stringify({id:getIdAsHexString(ID), messagetype:"chatmessage", data:{username:"", text:"lel"}}));
+        connection.send(JSON.stringify({id:ID, messagetype:"chatmessage", data:{username:"", text:"lel"}}));
         resetSDPModalBox();
         clearSDPModalBox();
     };

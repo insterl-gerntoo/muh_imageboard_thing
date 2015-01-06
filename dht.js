@@ -28,10 +28,8 @@ function initDHT(our_id)
 //Or better, ((ideal > nodeid) ? ideal - nodeid : nodeid - ideal)
 //^ better since we're dealing with unsigned integers
 
-function getLeastDistanceIdealIndex(nodeid)
+function getLeastDistanceIdealIndex(node_array)
 {
-    var node_array = parseIdFromHexString(nodeid);
-    
     var lowest = getMaxId();
     var lowest_index = 0;
     
@@ -45,4 +43,32 @@ function getLeastDistanceIdealIndex(nodeid)
     }
     
     return lowest_index;
+}
+
+function addNode(node_id, node_channel)
+{
+    var node_array = parseIdFromHexString(node_id);
+    
+    buckets[getLeastDistanceIdealIndex(node_array)].nodes.push({id:node_array, channel:node_channel});
+}
+
+function getClosestNodeChannel(node_id)
+{
+    var node_array = parseIdFromHexString(node_id);
+    var lowest = getMaxId();
+    var lowestchannel;
+    
+    for(var i = 0; i < buckets.length; ++i)
+    {
+        for(var j = 0; j < buckets[i].nodes.length; ++j)
+        {
+            if(idCompare(lowest, idDistance(buckets[i].nodes[j].id, node_array)) > 0)
+            {
+                lowest = buckets[i].nodes[j].id;
+                lowestchannel = buckets[i].nodes[j].channel;
+            }
+        }
+    }
+    
+    return lowestchannel;
 }

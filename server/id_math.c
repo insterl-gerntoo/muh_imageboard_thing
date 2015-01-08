@@ -1,14 +1,28 @@
 #include <string.h>
+#include <stdio.h>
 #include "id_math.h"
 
-void get_id_as_hex_string(ID, char *dest)
+ID get_id()
+{
+    ID ret;
+    FILE *random = fopen("/dev/urandom", "r");
+    int i = 0;
+    for(i; i < 16; ++i)
+    {
+        ret.bytes[i] = (uint8_t) getc(random);
+    }
+    fclose(random);
+    return ret;
+}
+
+void get_id_as_hex_string(ID id, char *dest)
 {
     char pool[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     int i = 0;
     for(i, i < 16, ++i)
     {
-        dest[2*i] = pool[ID.bytes[i] & 0x0f];
-        dest[(2*i)+1] = pool[ID.bytes[i] >> 4];
+        dest[2*i] = pool[id.bytes[i] & 0x0f];
+        dest[(2*i)+1] = pool[id.bytes[i] >> 4];
     }
 }
 
@@ -37,7 +51,7 @@ ID get_max_ID()
     return ID;
 }
 
-ID carry_through(int index, ID id)
+ID carry_through(int index, ID &id)
 {
     ID temp_id;
     
@@ -50,7 +64,7 @@ ID carry_through(int index, ID id)
     return temp_id;
 }
 
-ID id_add(ID id_1, ID id_2)
+ID id_add(ID &id_1, ID &id_2)
 {
     ID sum;
     ID temp = id_1;
@@ -70,7 +84,7 @@ ID id_add(ID id_1, ID id_2)
     return sum;
 }
 
-ID id_twos_complement_negate(ID id)
+ID id_twos_complement_negate(ID &id)
 {
     ID temp = id;
     ID one;
@@ -85,12 +99,12 @@ ID id_twos_complement_negate(ID id)
     return id_add(temp, one);
 }
 
-ID id_subtract(ID id_1, ID id_2)
+ID id_subtract(ID &id_1, ID &id_2)
 {
     return id_add(id_1, id_twos_complement_negate(id_2));
 }
 
-ID byte_shift_right(ID id, int num_bytes)
+ID byte_shift_right(ID &id, int num_bytes)
 {
     if(num_bytes == 0)
         return ID;
@@ -115,7 +129,7 @@ ID byte_shift_right(ID id, int num_bytes)
     return temp;
 }
 
-ID id_bit_shift_right(ID id, int num_bits)
+ID id_bit_shift_right(ID &id, int num_bits)
 {
     ID temp = byte_shift_right(id, num_bits >> 3);
     int remaining_bits = num_bits % 8;
@@ -138,7 +152,7 @@ ID id_bit_shift_right(ID id, int num_bits)
     return temp;
 }
 
-int id_compare(ID id_1, ID id_2)
+int id_compare(ID &id_1, ID &id_2)
 {
     int i = 0;
     for(i; i < 16; ++i)
@@ -155,7 +169,13 @@ int id_compare(ID id_1, ID id_2)
     return 0;
 }
 
-ID idDistance(ID id_1, ID id_2)
+//So we can use stdlib's qsort
+int id_comparator(const void *a, const void *b)
+{
+    return id_compare(*(ID*)a, *(ID*)b);
+}
+
+ID idDistance(ID &id_1, ID &id_2)
 {
     return (id_compare(id_1, id_2) > 0) ? id_subtract(id_1, id_2) : id_subtract(id_2, id_1);
 }

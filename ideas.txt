@@ -69,6 +69,7 @@ Node Startup Procedure:
     6. Then send a message of type "get_nodes" to the other node, with the data property set to an empty string
     7. The other node should then reply with a "got_nodes" message with the following data:
         -A list ID's of every node the other node has a connection to
+        -TODO: Connecting to nodes with ID's closest to ours should be a priority, make it so
     8. The node should then try to connect to each of the nodes on that list with the following procedure:
         8.1: Send a "proxy_message" message to the other node with the following data:
             -The ID of the node our node is trying to connect to

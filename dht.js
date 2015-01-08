@@ -22,12 +22,6 @@ function initDHT(our_id)
     buckets.sort(function(a, b) {return idCompare(a.ideal, b.ideal);});
 }
 
-//Here's what we need to do: create a "distance metric" to each ideal ID
-//The nodes then go to the bucket of the ID with the lowest distance metric
-//I'm thinking it would be abs(ideal - nodeid)
-//Or better, ((ideal > nodeid) ? ideal - nodeid : nodeid - ideal)
-//^ better since we're dealing with unsigned integers
-
 function getLeastDistanceIdealIndex(node_array)
 {
     var lowest = getMaxId();

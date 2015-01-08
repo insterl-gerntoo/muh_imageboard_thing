@@ -1,3 +1,9 @@
+/*TODO:
+ * 1. Rework this to use different callbacks depending on how we're sending the sdp data
+ * 2. Somehow make this work with the initialization procedure in ideas.txt
+ * 3. Channels and PeerConnections should be stored in the node's bucket in DHT once the node's ID is known*/
+
+
 //These help to reduce compatibility issues across browsers
 var PeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
 var IceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;

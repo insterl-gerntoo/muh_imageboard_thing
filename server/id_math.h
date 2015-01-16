@@ -16,6 +16,6 @@ ID id_subtract(ID id_1, ID id_2);
 ID id_bit_shift_right(ID id, int num_bits);
 int id_compare(ID id_1, ID id_2);
 int id_comparator(const void *a, const void *b);
-ID idDistance(ID id_1, ID id_2);
+ID id_distance(ID id_1, ID id_2);
 
 #endif

@@ -175,7 +175,7 @@ int id_comparator(const void *a, const void *b)
     return id_compare(*(ID*)a, *(ID*)b);
 }
 
-ID idDistance(ID &id_1, ID &id_2)
+ID id_distance(ID &id_1, ID &id_2)
 {
     return (id_compare(id_1, id_2) > 0) ? id_subtract(id_1, id_2) : id_subtract(id_2, id_1);
 }
